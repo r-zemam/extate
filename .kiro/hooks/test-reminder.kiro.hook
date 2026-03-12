@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Test File Reminder",
+  "description": "Reminds to create a corresponding test file when a new page or component is created",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "app/**/page.tsx",
+      "components/**/*.tsx",
+      "lib/**/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A new file was just created. Check if there's a corresponding test file in the __tests__ directory. If not, remind the user to create a test file following the pattern: for 'page.tsx' create '__tests__/page.test.tsx', for 'component.tsx' create '__tests__/component.test.tsx', for 'utility.ts' create '__tests__/utility.test.ts'. Mention that tests should cover basic functionality and error cases according to coding-standards.md."
+  }
+}

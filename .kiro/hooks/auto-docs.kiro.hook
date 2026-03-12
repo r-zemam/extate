@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "name": "Auto Documentation",
+  "description": "Automatically reminds to add JSDoc comments to functions that are missing them when .ts or .tsx files are saved",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.ts",
+      "*.tsx"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the file that was just saved and check if there are any exported functions missing JSDoc comments. If you find any, add proper JSDoc comments with parameter descriptions, return type descriptions, and usage examples where appropriate. Follow the coding standards in .kiro/steering/coding-standards.md."
+  }
+}
