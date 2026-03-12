@@ -26,9 +26,11 @@ EXTATE is a document protection platform that enables families in developing cou
 #### Acceptance Criteria
 
 1. THE EXTATE_System SHALL display a landing page at the root URL path
-2. THE EXTATE_System SHALL display a headline describing the document protection service
-3. THE EXTATE_System SHALL display a paragraph explaining the problem of lost property ownership proof
-4. THE EXTATE_System SHALL display a "Protect Your Documents" button that navigates to the upload page
+2. THE EXTATE_System SHALL display an emotional headline "Your property. Protected forever."
+3. THE EXTATE_System SHALL display a concise paragraph (one sentence) explaining how disasters and corruption threaten ownership and how EXTATE provides permanent protection
+4. THE EXTATE_System SHALL display a "Register a Document" button that navigates to the upload page
+5. THE EXTATE_System SHALL display a "How it works" section with three numbered steps
+6. THE EXTATE_System SHALL display trust indicators with professional SVG icons (lock, lightning, checkmark) instead of emojis
 
 ### Requirement 2: Document Upload Interface
 
@@ -38,10 +40,16 @@ EXTATE is a document protection platform that enables families in developing cou
 
 1. THE Document_Uploader SHALL display a file input accepting PDF and image formats
 2. THE Document_Uploader SHALL display an input field for owner name
-3. THE Document_Uploader SHALL display an input field for property address
+3. THE Document_Uploader SHALL display an input field for property address with a dynamic label that changes based on document type selection
 4. THE Document_Uploader SHALL display a selection field for document type with options: deed, title, inheritance record, and tax document
 5. THE Document_Uploader SHALL display an input field for document date
 6. THE Document_Uploader SHALL display a submit button to initiate registration
+7. THE Document_Uploader SHALL provide real-time validation feedback with appropriate error styling (red for errors, amber for incomplete selections)
+8. THE Document_Uploader SHALL group related fields with blue left border accents for visual hierarchy
+9. THE Document_Uploader SHALL update the property address label dynamically:
+   - "Property Address" for deed and title
+   - "Estate / Property Description" for inheritance record
+   - "Tax Parcel / Property Address" for tax document
 
 ### Requirement 3: Client-Side Hash Generation
 
@@ -70,12 +78,19 @@ EXTATE is a document protection platform that enables families in developing cou
 #### Acceptance Criteria
 
 1. THE Certificate_Generator SHALL display the owner name from the Document_Registry
-2. THE Certificate_Generator SHALL display the property address from the Document_Registry
+2. THE Certificate_Generator SHALL display the property address with a dynamic label based on document type (matching the upload form labels)
 3. THE Certificate_Generator SHALL display the document type from the Document_Registry
-4. THE Certificate_Generator SHALL display the document date from the Document_Registry
-5. THE Certificate_Generator SHALL display the Document_Fingerprint in a prominent format
-6. THE Certificate_Generator SHALL display the registration timestamp from the Document_Registry
-7. THE Certificate_Generator SHALL style the certificate to appear as an official document
+4. THE Certificate_Generator SHALL display the document date in readable format (e.g., "March 1, 2026")
+5. THE Certificate_Generator SHALL display the Document_Fingerprint in a prominent format with monospace font
+6. THE Certificate_Generator SHALL display the registration timestamp in readable format with time (e.g., "March 1, 2026 at 2:30 PM")
+7. THE Certificate_Generator SHALL style the certificate with:
+   - Serif fonts (Times/Georgia) for formal appearance
+   - Gold accents (#D4AF37) for borders and decorative elements
+   - Deep blue (#1E3A5F) for headings and official elements
+   - Cream/off-white backgrounds for sections
+   - Official seal with checkmark at the top
+   - Decorative borders and left-border accents
+   - Government-document aesthetic for trust and authority
 
 ### Requirement 6: Certificate Download
 
@@ -85,7 +100,10 @@ EXTATE is a document protection platform that enables families in developing cou
 
 1. THE Certificate_Generator SHALL display a download button on the certificate page
 2. WHEN the user clicks the download button, THE Certificate_Generator SHALL generate a PDF containing all certificate information using jsPDF
-3. THE Certificate_Generator SHALL initiate a browser download of the generated PDF file
+3. THE Certificate_Generator SHALL mirror the web certificate styling in the PDF including serif fonts, gold accents, and official formatting
+4. THE Certificate_Generator SHALL format dates in the PDF using readable format (e.g., "March 1, 2026")
+5. THE Certificate_Generator SHALL include dynamic property address labels in the PDF based on document type
+6. THE Certificate_Generator SHALL initiate a browser download of the generated PDF file
 
 ### Requirement 7: Certificate Navigation
 
@@ -131,3 +149,17 @@ EXTATE is a document protection platform that enables families in developing cou
 8. THE Document_Registry SHALL store the registration timestamp with timezone information
 9. WHEN a new record is created, THE Document_Registry SHALL automatically generate the unique identifier
 10. WHEN a new record is created, THE Document_Registry SHALL automatically set the registration timestamp to the current time
+
+### Requirement 11: Date and Label Formatting
+
+**User Story:** As a user, I want dates displayed in readable format and labels that match my document type, so that the interface is clear and contextual.
+
+#### Acceptance Criteria
+
+1. THE EXTATE_System SHALL format all document dates as "Month Day, Year" (e.g., "March 1, 2026") instead of ISO format
+2. THE EXTATE_System SHALL format all registration timestamps as "Month Day, Year at Hour:Minute AM/PM" (e.g., "March 1, 2026 at 2:30 PM")
+3. THE EXTATE_System SHALL provide a utility function `formatDate()` for date formatting
+4. THE EXTATE_System SHALL provide a utility function `formatTimestamp()` for timestamp formatting
+5. THE EXTATE_System SHALL provide a utility function `getPropertyAddressLabel()` that returns contextual labels based on document type
+6. THE EXTATE_System SHALL apply consistent date formatting across all pages (landing, upload, certificate, verification)
+7. THE EXTATE_System SHALL apply consistent date formatting in both web views and PDF downloads

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { computeSHA256, CryptoNotSupportedError, HashComputationError } from '@/lib/crypto';
 import { validateUploadForm, FormValidationResult } from '@/lib/validation';
 import { uploadDocument } from '@/lib/actions';
+import { getPropertyAddressLabel } from '@/lib/formatting';
 
 interface FormState {
   file: File | null;
@@ -35,6 +36,9 @@ export default function UploadPage() {
     validationErrors: {},
     lastError: undefined,
   });
+
+  // Get dynamic property address label based on document type
+  const propertyAddressLabel = getPropertyAddressLabel(formState.documentType || '');
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -176,8 +180,8 @@ export default function UploadPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* File Input */}
-            <div>
+            {/* File Input Section */}
+            <div className="border-l-4 border-blue-600 pl-6 py-2">
               <label htmlFor="file" className="block text-sm font-medium text-gray-700 mb-2">
                 Document File *
               </label>
@@ -217,8 +221,8 @@ export default function UploadPage() {
               )}
             </div>
 
-            {/* Owner Name */}
-            <div>
+            {/* Owner Information Section */}
+            <div className="border-l-4 border-blue-600 pl-6 py-2">
               <label htmlFor="ownerName" className="block text-sm font-medium text-gray-700 mb-2">
                 Owner Name *
               </label>
@@ -240,76 +244,79 @@ export default function UploadPage() {
               )}
             </div>
 
-            {/* Property Address */}
-            <div>
-              <label htmlFor="propertyAddress" className="block text-sm font-medium text-gray-700 mb-2">
-                Property Address *
-              </label>
-              <input
-                id="propertyAddress"
-                type="text"
-                value={formState.propertyAddress}
-                onChange={(e) => handleInputChange(e, 'propertyAddress')}
-                disabled={formState.isSubmitting}
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-                  formState.validationErrors.propertyAddress
-                    ? 'border-red-300 bg-red-50'
-                    : 'border-gray-300'
-                }`}
-                placeholder="Enter the property address"
-              />
-              {formState.validationErrors.propertyAddress && (
-                <p className="mt-2 text-sm text-red-600">{formState.validationErrors.propertyAddress}</p>
-              )}
-            </div>
+            {/* Property Details Section */}
+            <div className="border-l-4 border-blue-600 pl-6 py-2 space-y-4">
+              {/* Property Address with dynamic label */}
+              <div>
+                <label htmlFor="propertyAddress" className="block text-sm font-medium text-gray-700 mb-2">
+                  {propertyAddressLabel} *
+                </label>
+                <input
+                  id="propertyAddress"
+                  type="text"
+                  value={formState.propertyAddress}
+                  onChange={(e) => handleInputChange(e, 'propertyAddress')}
+                  disabled={formState.isSubmitting}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+                    formState.validationErrors.propertyAddress
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300'
+                  }`}
+                  placeholder={`Enter the ${propertyAddressLabel.toLowerCase()}`}
+                />
+                {formState.validationErrors.propertyAddress && (
+                  <p className="mt-2 text-sm text-red-600">{formState.validationErrors.propertyAddress}</p>
+                )}
+              </div>
 
-            {/* Document Type */}
-            <div>
-              <label htmlFor="documentType" className="block text-sm font-medium text-gray-700 mb-2">
-                Document Type *
-              </label>
-              <select
-                id="documentType"
-                value={formState.documentType}
-                onChange={(e) => handleInputChange(e, 'documentType')}
-                disabled={formState.isSubmitting}
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-                  formState.validationErrors.documentType
-                    ? 'border-red-300 bg-red-50'
-                    : 'border-gray-300'
-                }`}
-              >
-                <option value="">Select a document type</option>
-                <option value="deed">Deed</option>
-                <option value="title">Title</option>
-                <option value="inheritance_record">Inheritance Record</option>
-                <option value="tax_document">Tax Document</option>
-              </select>
-              {formState.validationErrors.documentType && (
-                <p className="mt-2 text-sm text-red-600">{formState.validationErrors.documentType}</p>
-              )}
-            </div>
+              {/* Document Type */}
+              <div>
+                <label htmlFor="documentType" className="block text-sm font-medium text-gray-700 mb-2">
+                  Document Type *
+                </label>
+                <select
+                  id="documentType"
+                  value={formState.documentType}
+                  onChange={(e) => handleInputChange(e, 'documentType')}
+                  disabled={formState.isSubmitting}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+                    formState.validationErrors.documentType
+                      ? 'border-amber-400 bg-amber-50'
+                      : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Select a document type</option>
+                  <option value="deed">Deed</option>
+                  <option value="title">Title</option>
+                  <option value="inheritance_record">Inheritance Record</option>
+                  <option value="tax_document">Tax Document</option>
+                </select>
+                {formState.validationErrors.documentType && (
+                  <p className="mt-2 text-sm text-amber-700">{formState.validationErrors.documentType}</p>
+                )}
+              </div>
 
-            {/* Document Date */}
-            <div>
-              <label htmlFor="documentDate" className="block text-sm font-medium text-gray-700 mb-2">
-                Document Date *
-              </label>
-              <input
-                id="documentDate"
-                type="date"
-                value={formState.documentDate}
-                onChange={(e) => handleInputChange(e, 'documentDate')}
-                disabled={formState.isSubmitting}
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
-                  formState.validationErrors.documentDate
-                    ? 'border-red-300 bg-red-50'
-                    : 'border-gray-300'
-                }`}
-              />
-              {formState.validationErrors.documentDate && (
-                <p className="mt-2 text-sm text-red-600">{formState.validationErrors.documentDate}</p>
-              )}
+              {/* Document Date */}
+              <div>
+                <label htmlFor="documentDate" className="block text-sm font-medium text-gray-700 mb-2">
+                  Document Date *
+                </label>
+                <input
+                  id="documentDate"
+                  type="date"
+                  value={formState.documentDate}
+                  onChange={(e) => handleInputChange(e, 'documentDate')}
+                  disabled={formState.isSubmitting}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+                    formState.validationErrors.documentDate
+                      ? 'border-red-300 bg-red-50'
+                      : 'border-gray-300'
+                  }`}
+                />
+                {formState.validationErrors.documentDate && (
+                  <p className="mt-2 text-sm text-red-600">{formState.validationErrors.documentDate}</p>
+                )}
+              </div>
             </div>
 
             {/* Submit Button */}
