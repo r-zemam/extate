@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Run Tests After Task",
+  "description": "Runs the test suite after each spec task completes to catch regressions immediately",
+  "version": "1",
+  "when": {
+    "type": "postTaskExecution"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npm test -- --passWithNoTests --watchAll=false 2>&1 | tail -20"
+  }
+}

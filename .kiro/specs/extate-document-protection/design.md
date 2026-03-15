@@ -78,22 +78,31 @@ interface UploadFormState {
   documentType: 'deed' | 'title' | 'inheritance_record' | 'tax_document';
   documentDate: string;
   isSubmitting: boolean;
+  submitStep: 'idle' | 'hashing' | 'uploading' | 'registering';
   error: string | null;
+  validationErrors: FormValidationResult['errors'];
 }
 ```
 
 **UI Elements**:
-- File input (accept: `.pdf,.jpg,.jpeg,.png`)
+- Drag-and-drop file zone (accept: `.pdf,.jpg,.jpeg,.png`) with upload SVG icon, drag-over state (blue border + scale), and green checkmark when file selected
 - Text input: Owner name
-- Text input: Property address
+- Text input: Property address (label updates dynamically based on document type)
 - Select dropdown: Document type
 - Date input: Document date
-- Submit button
+- Three-step processing indicator (Reading → Uploading → Registering) shown during submission
+- Submit button with step-specific label and spinner
 
 **Validation**:
 - All fields required
 - File must be PDF or image format
 - File size limit: 10MB
+- Document type dropdown uses amber border on validation error (not red) to distinguish "incomplete" from "wrong"
+
+**Dynamic Labels** (via `getPropertyAddressLabel()`):
+- deed / title → "Property Address"
+- inheritance_record → "Estate / Property Description"
+- tax_document → "Tax Parcel / Property Address"
 
 ---
 
@@ -212,8 +221,19 @@ The certificate page is the emotional core of the application. It must convey au
 
 **UI Elements**:
 - Certificate display (styled as official document)
+- Copy button for SHA-256 fingerprint (clipboard icon → "Copied" confirmation for 2s)
 - "Download PDF" button
+- "Share Verify Link" button (Web Share API on mobile, clipboard fallback on desktop)
 - "Verify This Document" button (navigation to verification page)
+- Formatted certificate ID: `EXTATE-XXXX-XXXX` derived from first 8 chars of UUID
+
+**Certificate ID Format**:
+```typescript
+function formatCertificateId(id: string): string {
+  const clean = id.replace(/-/g, '').toUpperCase();
+  return `EXTATE-${clean.slice(0, 4)}-${clean.slice(4, 8)}`;
+}
+```
 
 **Styling Notes**:
 - The certificate should feel like something a family would print, frame, and keep in a safe
@@ -263,21 +283,79 @@ interface VerificationState {
   computedFingerprint: string | null;
   isVerifying: boolean;
   verificationResult: 'match' | 'mismatch' | null;
+  lastVerificationError?: string;
 }
 ```
 
 **UI Elements**:
-- Display stored fingerprint from database
-- File upload input
-- Verification status indicator (green checkmark or red warning)
-- Side-by-side fingerprint comparison
+- Full-width result banner (green `bg-green-600` or red `bg-red-600`) with large SVG icon — appears above all other content when result is available
+- Registered document metadata card with uppercase tracking labels, formatted dates, and dynamic property address label
+- Drag-and-drop file upload zone (matching upload page styling)
+- Verification button with spinner
+- Fingerprint comparison section (stored vs computed) shown after verification
+- "Register a Document" CTA section at bottom linking to `/upload`
 
 **Verification Logic**:
 1. Fetch stored fingerprint from database
 2. User uploads file to verify
 3. Compute SHA-256 hash of uploaded file
 4. Compare computed hash with stored hash
-5. Display result with clear visual indicator
+5. Display full-width result banner with clear visual indicator
+6. Show side-by-side fingerprint comparison below
+
+---
+
+## Certificate Design System
+
+The certificate page uses a custom Tailwind color palette defined in `tailwind.config.ts` to achieve a government-document aesthetic. These colors are used consistently across the web certificate and PDF output.
+
+### Custom Color Tokens
+
+| Token | Hex | Usage |
+|-------|-----|-------|
+| `certificate-gold` | `#D4AF37` | Borders, decorative accents, seal ring |
+| `certificate-deep-blue` | `#1E3A5F` | Headings, official text, seal background |
+| `certificate-cream` | `#F5F5DC` | Section backgrounds |
+| `certificate-off-white` | `#FAF9F6` | Certificate body background |
+| `certificate-dark-text` | `#2C2C2C` | Body text, fingerprint background |
+| `certificate-bronze` | `#8B6914` | Secondary accent borders |
+| `certificate-forest-green` | `#2D5016` | Verify button |
+
+### Certificate Layout Structure
+
+```
+┌─────────────────────────────────────────┐
+│  ═══ Gold gradient border (top) ═══     │
+│                                         │
+│           [Official Seal]               │
+│    CERTIFICATE OF DOCUMENT REGISTRATION │
+│         ─────── gold rule ───────       │
+│   "This certifies that..." (italic)     │
+│                                         │
+│  ┌── Property Owner (gold left border) ─┤
+│  │  Owner Name                          │
+│  │  [Dynamic Address Label]             │
+│  │  Property Address                    │
+│  └──────────────────────────────────────┤
+│                                         │
+│  [Document Type]    [Document Date]     │
+│                                         │
+│  ┌── Fingerprint (gold border box) ─────┤
+│  │  SHA-256:                  [Copy]    │
+│  │  [monospace hash on dark bg]         │
+│  └──────────────────────────────────────┤
+│                                         │
+│  ┌── Registration Details (bronze) ─────┤
+│  │  Registered: [formatted timestamp]   │
+│  │  Certificate ID: EXTATE-XXXX-XXXX    │
+│  └──────────────────────────────────────┤
+│                                         │
+│  ─────── gold rule ───────              │
+│  [footer fine print]                    │
+│                                         │
+│  ═══ Gold gradient border (bottom) ═══  │
+└─────────────────────────────────────────┘
+```
 
 ---
 

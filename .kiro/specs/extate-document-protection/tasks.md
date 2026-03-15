@@ -308,6 +308,7 @@ This plan implements a Next.js 14 document protection platform with client-side 
     - Shorten body text to one punchy sentence
     - Replace emoji icons with professional SVG icons
     - Maintain emotional headline "Your property. Protected forever."
+    - Add "Who this is for" section with three user personas
     - _Requirements: 1.2, 1.3, 1.6_
   
   - [x] 15.2 Add dynamic property address labels to upload form
@@ -338,36 +339,64 @@ This plan implements a Next.js 14 document protection platform with client-side 
     - Create test-reminder hook to prompt for test files on file creation
     - _Requirements: All (code quality automation)_
 
-- [ ] 16. Remaining polish tasks
-  - [ ] 16.1 Add comprehensive JSDoc comments
-    - Review all exported functions in lib/ directory
-    - Add JSDoc comments with parameter descriptions and examples
-    - Ensure formatting utilities have complete documentation
-    - _Requirements: All (code documentation)_
+- [x] 16. Upload UX polish
+  - [x] 16.1 Implement drag-and-drop file upload
+    - Add onDrop, onDragOver, onDragLeave handlers to drop zone
+    - Show blue border and scale animation on drag-over
+    - Show green checkmark and file name when file is selected
+    - Show upload SVG icon when no file is selected
+    - _Requirements: 12.1, 12.2, 12.3_
   
-  - [ ] 16.2 Accessibility audit
-    - Verify all form inputs have proper labels
-    - Check color contrast ratios meet WCAG standards
-    - Test keyboard navigation on all pages
-    - Ensure screen reader compatibility
-    - _Requirements: All (accessibility)_
-  
-  - [ ] 16.3 Performance optimization
-    - Analyze bundle size and optimize if needed
-    - Ensure images are optimized (if any added)
-    - Verify server components are used where appropriate
-    - Test page load times on slow connections
-    - _Requirements: All (performance)_
-  
-  - [ ]* 16.4 Create user documentation
-    - Write README with setup instructions
-    - Document environment variable configuration
-    - Add troubleshooting guide for common issues
-    - Create deployment guide for production
-    - _Requirements: All (documentation)_
+  - [x] 16.2 Add processing steps indicator
+    - Track submitStep state: 'idle' | 'hashing' | 'uploading' | 'registering'
+    - Display three-step progress bar (Reading → Uploading → Registering) during submission
+    - Highlight active step in blue, completed steps in green with checkmark
+    - Update submit button label to match current step
+    - _Requirements: 12.4, 12.5, 12.6_
 
-- [x] 17. Final checkpoint - Ensure all tests pass
-  - Ensure all tests pass, ask the user if questions arise.
+- [x] 17. Certificate page polish
+  - [x] 17.1 Add fingerprint copy button
+    - Add Copy button with clipboard icon adjacent to fingerprint display
+    - Show "Copied" confirmation with checkmark for 2 seconds after click
+    - _Requirements: 13.1, 13.2_
+  
+  - [x] 17.2 Add share button
+    - Add "Share Verify Link" button that uses Web Share API on mobile
+    - Fall back to clipboard copy on desktop
+    - _Requirements: 13.3, 13.4_
+  
+  - [x] 17.3 Format certificate ID
+    - Derive human-readable ID from UUID: EXTATE-XXXX-XXXX format
+    - Display formatted ID in registration details section
+    - _Requirements: 13.5_
+  
+  - [x] 17.4 Improve loading state
+    - Replace plain text loading with spinner animation
+    - _Requirements: 13.6_
+
+- [x] 18. Verification page polish
+  - [x] 18.1 Implement prominent result banner
+    - Replace inline result card with full-width colored banner (green/red)
+    - Display large SVG checkmark or X icon in banner
+    - Position banner above document metadata for immediate visibility
+    - _Requirements: 14.1, 14.2_
+  
+  - [x] 18.2 Improve document metadata card
+    - Use uppercase tracking labels for field names
+    - Apply formatDate() and formatTimestamp() to all dates
+    - Apply getPropertyAddressLabel() for dynamic address label
+    - Restructure into clean card layout with border-bottom section header
+    - _Requirements: 14.3, 14.4, 14.5_
+  
+  - [x] 18.3 Add "Register a Document" CTA
+    - Add blue CTA section at bottom of page
+    - Link to /upload with clear call to action
+    - _Requirements: 14.6_
+  
+  - [x] 18.4 Improve loading and drop zone states
+    - Replace plain text loading with spinner animation
+    - Match drop zone styling to upload page (upload icon, hover states, green on file selected)
+    - _Requirements: 14.7_
 
 ## Notes
 

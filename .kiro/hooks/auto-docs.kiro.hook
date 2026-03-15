@@ -1,17 +1,16 @@
 {
   "enabled": true,
   "name": "Auto Documentation",
-  "description": "Automatically reminds to add JSDoc comments to functions that are missing them when .ts or .tsx files are saved",
+  "description": "Automatically adds JSDoc comments to exported functions in lib/ utilities when saved",
   "version": "1",
   "when": {
     "type": "fileEdited",
     "patterns": [
-      "*.ts",
-      "*.tsx"
+      "lib/*.ts"
     ]
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Review the file that was just saved and check if there are any exported functions missing JSDoc comments. If you find any, add proper JSDoc comments with parameter descriptions, return type descriptions, and usage examples where appropriate. Follow the coding standards in .kiro/steering/coding-standards.md."
+    "prompt": "Review the lib/ file that was just saved and check if there are any exported functions missing JSDoc comments. If you find any, add proper JSDoc comments with @param descriptions, @returns description, @throws if applicable, and a @example block. Follow the JSDoc standards in .kiro/steering/coding-standards.md. Do not modify any logic — documentation only."
   }
 }

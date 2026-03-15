@@ -91,3 +91,46 @@ supabase/              # Database migrations and policies
 - Public Supabase anon key is safe (RLS policies protect data)
 - UUID-based file naming prevents enumeration
 - Client-side hashing ensures file integrity
+
+## Design Decisions and Trade-offs
+
+### Why Next.js 14 App Router
+- Server components by default reduce client-side JavaScript
+- Built-in server actions eliminate the need for a separate API layer
+- File-based routing maps cleanly to the 4-page structure
+- Vercel deployment is zero-config
+
+### Why Supabase over Firebase or raw AWS RDS
+- PostgreSQL gives us proper relational data with UUID primary keys
+- Built-in Storage bucket handles file uploads without S3 configuration
+- Row Level Security (RLS) policies provide access control at the database level
+- Free tier is sufficient for a prototype/hackathon scope
+- Single service for both database and file storage reduces complexity
+
+### Why Client-Side SHA-256 Hashing
+- **Privacy**: The document never leaves the browser unencrypted — the server only ever sees the hash
+- **Performance**: No server round-trip for the most compute-intensive step
+- **Trust**: Users can verify the hashing happens locally by inspecting the source
+- Web Crypto API is available in all modern browsers natively (no library needed)
+
+### Why No Authentication
+- **Accessibility**: No account means any family member, lawyer, or official can verify a document
+- **Simplicity**: Reduces friction for users with limited technical literacy
+- **Scope**: For a prototype, public verification is the core value proposition
+- Trade-off: Anyone with a certificate ID can view the registration — acceptable given documents are identified only by UUID
+
+### Why Public Storage Bucket
+- Simplifies architecture: direct public URLs stored in database, no signed URL generation
+- Trade-off: Files are technically accessible by URL — mitigated by UUID-based naming (no enumeration)
+- Acceptable for a prototype; production would use signed URLs with expiry
+
+### Why No Blockchain for v1
+- Adds significant complexity (wallet management, gas fees, network choice)
+- Timeline trade-off: core value (cryptographic proof + permanent record) is achievable without it
+- Supabase database provides the permanent record for v1
+- Ethereum/Polygon anchoring is the natural v2 enhancement for truly trustless verification
+
+### Certificate ID Format
+- Raw UUIDs (`3f2504e0-4f89-11d3-9a0c-0305e82c3301`) are hard to read and share verbally
+- `EXTATE-3F25-04E0` format is memorable, brandable, and still unique enough for a prototype
+- Derived from first 8 hex characters of the UUID

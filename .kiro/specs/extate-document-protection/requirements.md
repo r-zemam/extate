@@ -163,3 +163,43 @@ EXTATE is a document protection platform that enables families in developing cou
 5. THE EXTATE_System SHALL provide a utility function `getPropertyAddressLabel()` that returns contextual labels based on document type
 6. THE EXTATE_System SHALL apply consistent date formatting across all pages (landing, upload, certificate, verification)
 7. THE EXTATE_System SHALL apply consistent date formatting in both web views and PDF downloads
+
+### Requirement 12: Upload UX Enhancements
+
+**User Story:** As a property owner, I want a clear and reassuring upload experience, so that I feel confident my document is being processed correctly.
+
+#### Acceptance Criteria
+
+1. THE Document_Uploader SHALL support drag-and-drop file selection in addition to click-to-browse
+2. THE Document_Uploader SHALL display a visual drag-over state (blue border, scaled appearance) when a file is dragged over the drop zone
+3. THE Document_Uploader SHALL display a green checkmark and file name when a file has been selected
+4. THE Document_Uploader SHALL display a three-step progress indicator (Reading → Uploading → Registering) during form submission
+5. THE Document_Uploader SHALL update the submit button label to reflect the current step ("Reading document...", "Uploading...", "Registering...")
+6. THE Document_Uploader SHALL disable the submit button with a blue tint (not gray) while submitting to indicate active processing
+
+### Requirement 13: Certificate Sharing and Copy Features
+
+**User Story:** As a property owner, I want to easily share and copy my certificate details, so that I can send proof of registration to others.
+
+#### Acceptance Criteria
+
+1. THE Certificate_Generator SHALL display a "Copy" button adjacent to the SHA-256 fingerprint
+2. WHEN the user clicks Copy, THE Certificate_Generator SHALL copy the fingerprint to the clipboard and show a "Copied" confirmation for 2 seconds
+3. THE Certificate_Generator SHALL display a "Share Verify Link" button that shares or copies the verification URL for the document
+4. WHEN the device supports the Web Share API, THE Certificate_Generator SHALL use native sharing; otherwise it SHALL copy the URL to clipboard
+5. THE Certificate_Generator SHALL format the certificate ID as `EXTATE-XXXX-XXXX` (derived from the first 8 characters of the UUID) instead of displaying the raw UUID
+6. THE Certificate_Generator SHALL display a spinner animation in the loading state instead of plain text
+
+### Requirement 14: Verification Page UX
+
+**User Story:** As a verifier, I want an immediately clear result and easy access to register my own documents, so that the verification outcome is unmistakable and the service is discoverable.
+
+#### Acceptance Criteria
+
+1. THE Verification_Engine SHALL display the verification result as a full-width colored banner (green for match, red for mismatch) that appears above all other content
+2. THE Verification_Engine SHALL display a large SVG icon (checkmark or X) inside the result banner
+3. THE Verification_Engine SHALL display the registered document metadata in a clean card layout with uppercase tracking labels
+4. THE Verification_Engine SHALL use `formatDate()` and `formatTimestamp()` for all dates in the metadata card
+5. THE Verification_Engine SHALL use `getPropertyAddressLabel()` for the property address label in the metadata card
+6. THE Verification_Engine SHALL display a "Register a Document" call-to-action section at the bottom of the page linking to `/upload`
+7. THE Verification_Engine SHALL display a spinner animation in the loading state instead of plain text

@@ -17,12 +17,21 @@ interface DocumentRecord {
   created_at: string;
 }
 
+/**
+ * Format a UUID into a readable certificate ID like EXTATE-A1B2-C3D4
+ */
+function formatCertificateId(id: string): string {
+  const clean = id.replace(/-/g, '').toUpperCase();
+  return `EXTATE-${clean.slice(0, 4)}-${clean.slice(4, 8)}`;
+}
+
 export default function CertificatePage({ params }: { params: { id: string } }) {
   const [document, setDocument] = useState<DocumentRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [lastPdfError, setLastPdfError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function fetchDocument() {
@@ -35,13 +44,11 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
         setLoading(false);
       }
     }
-
     fetchDocument();
   }, [params.id]);
 
   const handleDownloadPDF = async () => {
     if (!document) return;
-    
     try {
       setIsDownloading(true);
       setLastPdfError(null);
@@ -55,15 +62,35 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
     }
   };
 
-  const handleRetryPdfDownload = () => {
-    handleDownloadPDF();
+  const handleCopyFingerprint = async () => {
+    if (!document) return;
+    try {
+      await navigator.clipboard.writeText(document.fingerprint);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard not available — silently ignore
+    }
+  };
+
+  const handleShare = async () => {
+    if (!document) return;
+    const verifyUrl = `${window.location.origin}/verify/${document.id}`;
+    if (navigator.share) {
+      await navigator.share({ title: 'EXTATE Certificate', url: verifyUrl });
+    } else {
+      await navigator.clipboard.writeText(verifyUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   if (loading) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-4">
         <div className="text-center">
-          <p className="text-lg text-gray-600">Loading certificate...</p>
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading your certificate...</p>
         </div>
       </main>
     );
@@ -79,7 +106,7 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
           </p>
           <Link
             href="/"
-            className="inline-block px-6 py-2 bg-certificate-deep-blue text-white rounded hover:bg-opacity-90 transition"
+            className="inline-block px-6 py-3 bg-certificate-deep-blue text-white rounded-lg hover:bg-opacity-90 transition"
           >
             Return to Home
           </Link>
@@ -88,8 +115,8 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
     );
   }
 
-  // Get dynamic property address label
   const propertyAddressLabel = getPropertyAddressLabel(document.document_type);
+  const certId = formatCertificateId(document.id);
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-certificate-cream to-certificate-off-white py-8 px-4 sm:px-6 lg:px-8">
@@ -99,7 +126,6 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
           {/* Decorative Top Border */}
           <div className="h-2 bg-gradient-to-r from-certificate-deep-blue via-certificate-gold to-certificate-deep-blue"></div>
 
-          {/* Certificate Content */}
           <div className="p-8 sm:p-12 lg:p-16">
             {/* Official Seal */}
             <div className="flex justify-center mb-8">
@@ -122,7 +148,7 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
               This certifies that the following property document has been registered and protected with cryptographic verification.
             </p>
 
-            {/* Owner Information Section */}
+            {/* Owner Information */}
             <div className="mb-8 p-6 bg-certificate-cream rounded border-l-4 border-certificate-gold">
               <h2 className="font-serif text-lg font-bold text-certificate-deep-blue mb-4 uppercase tracking-wide">
                 Property Owner
@@ -140,7 +166,7 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
               </div>
             </div>
 
-            {/* Document Details Section */}
+            {/* Document Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               <div className="p-4 bg-certificate-cream rounded">
                 <h3 className="font-serif text-sm font-bold text-certificate-deep-blue uppercase tracking-wide mb-2">
@@ -162,9 +188,32 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
 
             {/* Fingerprint Section */}
             <div className="mb-8 p-6 bg-white border-2 border-certificate-gold rounded">
-              <h2 className="font-serif text-lg font-bold text-certificate-deep-blue mb-4 uppercase tracking-wide">
-                Document Fingerprint (SHA-256)
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-serif text-lg font-bold text-certificate-deep-blue uppercase tracking-wide">
+                  Document Fingerprint (SHA-256)
+                </h2>
+                <button
+                  onClick={handleCopyFingerprint}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-certificate-deep-blue text-white rounded hover:bg-opacity-90 transition"
+                  title="Copy fingerprint"
+                >
+                  {copied ? (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
               <div className="bg-certificate-dark-text text-certificate-gold p-4 rounded font-mono text-xs sm:text-sm break-all leading-relaxed">
                 {document.fingerprint}
               </div>
@@ -173,16 +222,17 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
               </p>
             </div>
 
-            {/* Registration Details Section */}
+            {/* Registration Details */}
             <div className="mb-8 p-4 bg-certificate-cream rounded border-l-4 border-certificate-bronze">
-              <h3 className="font-serif text-sm font-bold text-certificate-deep-blue uppercase tracking-wide mb-2">
+              <h3 className="font-serif text-sm font-bold text-certificate-deep-blue uppercase tracking-wide mb-3">
                 Registration Details
               </h3>
               <p className="font-serif text-sm text-certificate-dark-text">
                 <span className="font-semibold">Registered:</span> {formatTimestamp(document.created_at)}
               </p>
-              <p className="font-serif text-sm text-certificate-dark-text mt-1">
-                <span className="font-semibold">Certificate ID:</span> {document.id}
+              <p className="font-serif text-sm text-certificate-dark-text mt-2">
+                <span className="font-semibold">Certificate ID:</span>{' '}
+                <span className="font-mono tracking-widest text-certificate-deep-blue font-bold">{certId}</span>
               </p>
             </div>
 
@@ -196,7 +246,6 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
             </div>
           </div>
 
-          {/* Decorative Bottom Border */}
           <div className="h-2 bg-gradient-to-r from-certificate-deep-blue via-certificate-gold to-certificate-deep-blue"></div>
         </div>
 
@@ -205,30 +254,47 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
           <button
             onClick={handleDownloadPDF}
             disabled={isDownloading}
-            className="px-6 py-3 bg-certificate-deep-blue text-white font-semibold rounded hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 bg-certificate-deep-blue text-white font-semibold rounded-lg hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
             {isDownloading ? 'Generating PDF...' : 'Download PDF'}
           </button>
+
+          <button
+            onClick={handleShare}
+            className="px-6 py-3 bg-white border-2 border-certificate-deep-blue text-certificate-deep-blue font-semibold rounded-lg hover:bg-certificate-cream transition flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            Share Verify Link
+          </button>
+
           {lastPdfError && (
             <button
-              onClick={handleRetryPdfDownload}
+              onClick={handleDownloadPDF}
               disabled={isDownloading}
-              className="px-6 py-3 bg-red-600 text-white font-semibold rounded hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:opacity-50"
             >
               Retry PDF Download
             </button>
           )}
+
           <Link
             href={`/verify/${document.id}`}
-            className="px-6 py-3 bg-certificate-forest-green text-white font-semibold rounded hover:bg-opacity-90 transition text-center"
+            className="px-6 py-3 bg-certificate-forest-green text-white font-semibold rounded-lg hover:bg-opacity-90 transition text-center flex items-center justify-center gap-2"
           >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
             Verify This Document
           </Link>
         </div>
 
-        {/* Print Friendly Note */}
-        <div className="text-center mt-6 text-sm text-gray-600">
-          <p>💡 Tip: You can also print this certificate directly from your browser (Ctrl+P or Cmd+P)</p>
+        <div className="text-center mt-6 text-sm text-gray-500">
+          <p>You can also print this certificate from your browser — Ctrl+P or Cmd+P</p>
         </div>
       </div>
     </main>

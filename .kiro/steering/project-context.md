@@ -118,6 +118,21 @@ A successful implementation means:
 - Verification process is simple and reliable
 - User feels their document is truly protected
 
+## User Personas
+
+These three personas are displayed on the landing page and should inform every design and copy decision:
+
+### Persona 1: Paper Documents at Risk
+A family whose only proof of ownership is a paper deed stored at home. Their area floods every year. Fire is common. One disaster could destroy everything their family owns. They need a digital backup that survives physical destruction.
+
+### Persona 2: No Official Records Exist
+Someone whose local land registry office was destroyed or corrupted. Records no longer exist. Officials cannot verify ownership. They have no way to prove their land is theirs without the original document. They need a timestamped record that predates any dispute.
+
+### Persona 3: Displaced and Returning Home
+A family that fled conflict and left everything behind. They return to find strangers living on their land, claiming it's theirs. They have no documents to prove otherwise. They need proof that existed before the displacement.
+
+**Design implication**: Every page should feel like it was built for these people — not for a tech-savvy startup user. Language must be simple, actions must be obvious, and the certificate must look like something worth printing and keeping.
+
 ## Remember
 
 This isn't just a tech demo or a portfolio project. This is a tool that could help real families protect their most valuable assets. Every design decision should be made with that weight in mind.
